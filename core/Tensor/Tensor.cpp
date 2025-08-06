@@ -40,6 +40,12 @@ size_t Tensor::linearIndex(const std::vector<size_t>& indices) const
     return linearInd;
 }
 
+
+const std::vector<int> Tensor::shape() const
+{
+    return _shape;
+}
+
 float& Tensor::operator[](size_t index)
 {
     return _data[index];

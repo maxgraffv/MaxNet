@@ -19,6 +19,8 @@ class Tensor
         int size();
         size_t linearIndex(const std::vector<size_t>& indices) const;
 
+        const std::vector<int> shape() const;
+
         float& operator[](size_t index);
         float& at(std::vector<size_t> indices);
         const float& at(std::vector<size_t> indices) const;
