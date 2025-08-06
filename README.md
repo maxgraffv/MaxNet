@@ -12,19 +12,21 @@ Based on PyTorch opartions <br/>
 <br/>
 
 ### Core
-- Tensor
+- [X] Tensor
 - Device
-- Shape, Stride, Broadcasting
+- [X] Shape, Stride, 
+- Broadcasting
 - AutogradEngine
 
 ### Operations
-- add
-- mul
-- matmul
-- dot
-- conv2d
-- relu
-- sigmoid
+- [X] add
+- [X] mul
+- [X] matmul
+- [X] dot
+
+- [X] conv2d
+- [X] relu
+- [X] sigmoid
 
 ### Layers
 - Linear
@@ -45,6 +47,8 @@ Model model = Sequential({LAYERS array}) - as if a stream - model = input.Conv2D
 
 
 
+## Learn more about
+- Dropout, BN, skip
 
 
 
