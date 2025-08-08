@@ -139,3 +139,28 @@ float Tensor::dot(const Tensor& other) const {
     }
     return result;
 }
+
+Tensor Tensor::reshape(const std::vector<int>& new_shape) const {
+    int new_size = 1;
+    for (int dim : new_shape) {
+        if (dim != -1) new_size *= dim;
+    }
+
+    int inferred = -1;
+    if (std::find(new_shape.begin(), new_shape.end(), -1) != new_shape.end()) {
+        inferred = _size / new_size;
+    }
+
+    std::vector<int> final_shape = new_shape;
+    for (int& dim : final_shape) {
+        if (dim == -1) dim = inferred;
+    }
+
+    if (_size != new_size * (inferred > 0 ? 1 : 0)) {
+        throw std::runtime_error("Invalid reshape: total size mismatch");
+    }
+
+    Tensor result(final_shape);
+    result._data = _data; // shallow copy of data
+    return result;
+}

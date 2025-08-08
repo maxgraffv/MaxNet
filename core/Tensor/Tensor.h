@@ -39,6 +39,9 @@ class Tensor
         Tensor matmul(const Tensor& other) const;
         Tensor mul(const Tensor& other) const;
         float dot(const Tensor& other) const;
+
+
+        Tensor reshape(const std::vector<int>& new_shape) const;
 };
 
 
