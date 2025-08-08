@@ -3,9 +3,16 @@
 
 
 
-NeuralNet::NeuralNet()
+NeuralNet::NeuralNet() 
+    : conv_weight({4,3,3,3}), conv_bias({4}), fc_weight({2, 4*62*62}), fc_bias({2})
 {
+    std::default_random_engine generator;
+    std::normal_distribution<float> distribution(0.0f, 0.1f);
 
+    for (int i = 0; i < conv_weight.size(); ++i) conv_weight[i] = distribution(generator);
+    for (int i = 0; i < conv_bias.size(); ++i) conv_bias[i] = 0.0f;
+    for (int i = 0; i < fc_weight.size(); ++i) fc_weight[i] = distribution(generator);
+    for (int i = 0; i < fc_bias.size(); ++i) fc_bias[i] = 0.0f;
 }
 
 Tensor NeuralNet::conv2d(const Tensor& input, const Tensor& kernel, int stride, int padding) {
@@ -111,7 +118,68 @@ Tensor NeuralNet::softmax(const Tensor& input) {
 Tensor NeuralNet::forward(const Tensor& input) {
     Tensor x = conv2d(input, conv_weight, 1, 0);
     x = relu(x);
-    x = x.reshape({x.shape()[0], -1});  // flatten
+    x = x.reshape({x.shape()[0], -1});
     x = linear(x, fc_weight, fc_bias);
     return softmax(x);
+}
+
+float NeuralNet::crossEntropyLoss(const Tensor& predictions, const Tensor& targets) {
+    float loss = 0.0f;
+    for (size_t n = 0; n < predictions.shape()[0]; ++n) {
+        for (size_t i = 0; i < predictions.shape()[1]; ++i) {
+            float target = (i == static_cast<int>(targets.at({n}))) ? 1.0f : 0.0f;
+            float pred = predictions.at({n, i});
+            loss -= target * std::log(pred + 1e-9f);
+        }
+    }
+    return loss / predictions.shape()[0];
+}
+
+void NeuralNet::backward(const Tensor& input, const Tensor& output,
+                            const Tensor& target, float lr) 
+{
+    // Oblicz różnicę (dy) między predykcją a targetem (softmax już był w forward)
+    Tensor dy = output;
+    for (size_t n = 0; n < output.shape()[0]; ++n) {
+        size_t t = static_cast<int>(target.at({n}));
+        dy.at({n, t}) -= 1.0f;
+    }
+
+    // Gradient dla fc_weight i fc_bias
+    Tensor x = conv2d(input, conv_weight, 1, 0);
+    x = relu(x);
+    Tensor x_flat = x.reshape({x.shape()[0], -1});
+
+    for (size_t i = 0; i < fc_weight.shape()[0]; ++i) {
+        for (size_t j = 0; j < fc_weight.shape()[1]; ++j) {
+            float grad = 0.0f;
+            for (size_t n = 0; n < dy.shape()[0]; ++n) {
+                grad += dy.at({n, i}) * x_flat.at({n, j});
+            }
+            fc_weight.at({i, j}) -= lr * grad / dy.shape()[0];
+        }
+    }
+
+    for (size_t i = 0; i < fc_bias.shape()[0]; ++i) {
+        float grad = 0.0f;
+        for (size_t n = 0; n < dy.shape()[0]; ++n) {
+            grad += dy.at({n, i});
+        }
+        fc_bias.at({i}) -= lr * grad / dy.shape()[0];
+    }
+}
+
+void NeuralNet::train(const std::vector<Tensor>& inputs,
+                      const std::vector<Tensor>& targets,
+                      int epochs, float lr) {
+    for (int epoch = 0; epoch < epochs; ++epoch) {
+        float total_loss = 0.0f;
+        for (size_t i = 0; i < inputs.size(); ++i) {
+            Tensor pred = forward(inputs[i]);
+            float loss = crossEntropyLoss(pred, targets[i]);
+            total_loss += loss;
+            backward(inputs[i], pred, targets[i], lr);
+        }
+        std::cout << "Epoch " << epoch+1 << "/" << epochs << " - Loss: " << total_loss / inputs.size() << std::endl;
+    }
 }
