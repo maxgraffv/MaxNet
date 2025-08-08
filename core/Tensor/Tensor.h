@@ -13,24 +13,32 @@ class Tensor
         int _size;
         void initStrides();
 
+        
 
     public:
         Tensor(std::vector<int> shape);
-        int size();
-        size_t linearIndex(const std::vector<size_t>& indices) const;
 
-        const std::vector<int> shape() const;
+
+        /*
+            Access
+        */
+        size_t linearIndex(const std::vector<size_t>& indices) const;
 
         float& operator[](size_t index);
         float& at(std::vector<size_t> indices);
         const float& at(std::vector<size_t> indices) const;
 
+        int size();
+        const std::vector<int> shape() const;
+
+
+        /*
+            Mathematical
+        */
         Tensor add(const Tensor& other) const;
         Tensor matmul(const Tensor& other) const;
         Tensor mul(const Tensor& other) const;
         float dot(const Tensor& other) const;
-
-
 };
 
 
