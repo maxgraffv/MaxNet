@@ -9,10 +9,12 @@ add_executable(MaxNet Main.cpp)
 
 add_subdirectory(core/Tensor)
 add_subdirectory(core/NeuralNet)
+add_subdirectory(core/DataLoader)
 
 
 
 target_link_libraries(MaxNet PUBLIC
                         Tensor
                         NeuralNet    
+                        DataLoader
                         )
