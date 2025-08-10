@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 # 🔧 Ustawienia
 batch_size = 4
-epochs = 32
+epochs = 24
 learning_rate = 0.001
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.mps.is_available() else 
                       'cpu')
@@ -26,10 +26,10 @@ transform = transforms.Compose([
 ])
 
 # 📥 Dane
-dataset = ImageFolder(root='./data/train', transform=transform)
+dataset = ImageFolder(root='./assets/train', transform=transform)
 train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-test_data  = ImageFolder(root='./data/test', transform=transform)
+test_data  = ImageFolder(root='./assets/test', transform=transform)
 test_loader  = DataLoader(test_data, batch_size=batch_size)
 
 # 🧠 Model
@@ -139,27 +139,27 @@ print(f"Test Accuracy: {100 * correct / total:.2f}%")
 
 
 # 👁️‍🗨️ Przykładowe predykcje
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 
-# images, labels = next(iter(test_loader))
-# images = images.to(device)
-# outputs = model(images)
-# _, predicted = torch.max(outputs, 1)
+images, labels = next(iter(test_loader))
+images = images.to(device)
+outputs = model(images)
+_, predicted = torch.max(outputs, 1)
 
-# plt.figure(figsize=(10, 3))
-# for i in range(batch_size):
-#     plt.subplot(2, 5, i+1)
-#     plt.imshow(images[i].cpu().permute(1, 2, 0))  # z (C,H,W) → (H,W,C)
-#     plt.title(f"Label: {labels[i]}\nPred: {predicted[i].item()}")
-#     plt.axis('off')
-# plt.tight_layout()
-# plt.show()
+plt.figure(figsize=(10, 3))
+for i in range(batch_size):
+    plt.subplot(2, 5, i+1)
+    plt.imshow(images[i].cpu().permute(1, 2, 0))  # z (C,H,W) → (H,W,C)
+    plt.title(f"Label: {labels[i]}\nPred: {predicted[i].item()}")
+    plt.axis('off')
+plt.tight_layout()
+plt.show()
 
 
-predict_image(
-    image_path='./sabrina.jpg',
-    model=model,
-    class_names=dataset.classes,  # ['ari', 'max']
-    transform=transform,     # ten sam co do test_loadera
-    device=device
-)
+# predict_image(
+#     image_path='./sabrina.jpg',
+#     model=model,
+#     class_names=dataset.classes,  # ['ari', 'max']
+#     transform=transform,     # ten sam co do test_loadera
+#     device=device
+# )
